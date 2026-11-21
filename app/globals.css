@@ -10,6 +10,7 @@
     from {
       height: 0;
     }
+
     to {
       height: var(
         --radix-collapsible-content-height,
@@ -17,6 +18,7 @@
       );
     }
   }
+
   @keyframes collapsible-up {
     from {
       height: var(
@@ -24,6 +26,7 @@
         var(--collapsible-panel-height, auto)
       );
     }
+
     to {
       height: 0;
     }
@@ -35,8 +38,26 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-ibm-plex-mono);
+  --font-sans: var(
+    --font-inter,
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif
+  );
+  --font-mono: var(
+    --font-ibm-plex-mono,
+    "IBM Plex Mono",
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace
+  );
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -74,10 +95,12 @@
   --radius-3xl: 1.5rem;
   --animate-shimmer: shimmer-sweep var(--shimmer-duration, 1000ms) linear
     infinite both;
+
   @keyframes shimmer-sweep {
     from {
       background-position: 150% 0;
     }
+
     to {
       background-position: -100% 0;
     }
@@ -170,4 +193,39 @@
     @apply bg-background text-foreground;
     font-optical-sizing: auto;
   }
+}
+
+@keyframes aui-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+:where(.aui-md[data-status="running"]):empty::after,
+:where(.aui-md[data-status="running"])
+  > :where(:not(ol):not(ul):not(pre)):last-child::after,
+:where(.aui-md[data-status="running"]) > pre:last-child code::after,
+:where(.aui-md[data-status="running"])
+  > :where(:is(ol, ul):last-child)
+  > :where(li:last-child:not(:has(* > li)))::after,
+:where(.aui-md[data-status="running"])
+  > :where(:is(ol, ul):last-child)
+  > :where(li:last-child)
+  > :where(:is(ol, ul):last-child)
+  > :where(li:last-child:not(:has(* > li)))::after,
+:where(.aui-md[data-status="running"])
+  > :where(:is(ol, ul):last-child)
+  > :where(li:last-child)
+  > :where(:is(ol, ul):last-child)
+  > :where(li:last-child)
+  > :where(:is(ol, ul):last-child)
+  > :where(li:last-child)::after {
+  animation: aui-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  --aui-content: "\25cf";
+  content: var(--aui-content);
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
 }

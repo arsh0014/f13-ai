@@ -14,10 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
 export const Assistant = () => {
@@ -40,7 +38,9 @@ export const Assistant = () => {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="font-semibold text-base">F13 Technology-ai</BreadcrumbPage>
+                    <BreadcrumbPage className="text-base font-semibold">
+                      F13 Technology-ai
+                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
