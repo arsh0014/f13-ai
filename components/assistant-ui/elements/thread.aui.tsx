@@ -9,6 +9,9 @@ import { File, getFileHref } from "@/components/file";
 import { ThreadFollowupSuggestions } from "@/components/assistant-ui/elements/follow-up-suggestions.aui";
 import { Image } from "@/components/image";
 import { MarkdownText } from "@/components/markdown-text";
+import { F13RecommendationCard } from "@/components/f13-recommendation";
+import { synthesizeF13Recommendation } from "@/lib/f13-matcher";
+import { AnimatedF13Composer } from "@/components/animated-f13-composer";
 import {
   Reasoning,
   ReasoningContent,
@@ -36,12 +39,12 @@ import {
   ErrorPrimitive,
   groupPartByType,
   MessagePrimitive,
-  SuggestionPrimitive,
   ThreadPrimitive,
   type FileMessagePartComponent,
   type ImageMessagePartComponent,
   type TextMessagePartComponent,
   type ToolCallMessagePartComponent,
+  useAui,
   useAuiState,
 } from "@assistant-ui/react";
 import {
@@ -53,17 +56,21 @@ import {
   ChevronRightIcon,
   CopyIcon,
   DownloadIcon,
+  Globe,
   MicIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PhoneIcon,
   RefreshCwIcon,
-  TriangleAlertIcon,
-  Loader2Icon,
+  ShieldCheck,
+  Sparkles,
   SquareIcon,
   PlayIcon,
   ThumbsDownIcon,
   ThumbsUpIcon,
+  TriangleAlertIcon,
+  Loader2Icon,
+  Workflow,
 } from "lucide-react";
 import {
   createContext,
@@ -267,14 +274,14 @@ const ThreadRoot: FC<{ isEmpty: boolean; autoFocus: boolean }> = ({
 
           <ThreadPrimitive.ViewportFooter
             className={cn(
-              "aui-thread-viewport-footer bg-background flex flex-col gap-4 overflow-visible pb-4 md:pb-6",
+              "aui-thread-viewport-footer flex flex-col gap-4 overflow-visible bg-transparent pb-4 md:pb-6",
               !isEmpty &&
-                "sticky bottom-0 mt-auto rounded-t-(--composer-radius)",
+                "sticky bottom-0 mt-auto rounded-t-3xl bg-black/90 pt-2 backdrop-blur-md",
             )}
           >
             <ThreadScrollToBottom />
             <ThreadFollowupSuggestions />
-            <Composer autoFocus={autoFocus} />
+            <AnimatedF13Composer autoFocus={autoFocus} isCompact={!isEmpty} />
             <AuiIf condition={(s) => isNewChatView(s) && s.composer.isEmpty}>
               <ThreadSuggestions />
             </AuiIf>
@@ -483,54 +490,83 @@ const ThreadScrollToBottom: FC = () => {
   );
 };
 
+const F13_WELCOME_CHIPS = [
+  {
+    title: "Build an AI Solution",
+    prompt:
+      "I want to build an AI solution for my enterprise. What services does F13 Technologies provide?",
+    icon: Sparkles,
+  },
+  {
+    title: "Improve Business Operations",
+    prompt:
+      "I want to improve business operations and automate internal workflows with modern cloud technology.",
+    icon: Workflow,
+  },
+  {
+    title: "Explore Cybersecurity",
+    prompt:
+      "My company needs cybersecurity advisory, Zero Trust architecture, and risk management.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Develop a Website",
+    prompt:
+      "I want to develop a website and digital commerce platform for our business.",
+    icon: Globe,
+  },
+];
+
 const ThreadWelcome: FC = () => {
   return (
-    <div className="aui-thread-welcome-root mb-6 flex flex-col px-2">
-      <p className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in fill-mode-both text-2xl font-medium tracking-tight duration-200">
-        How can I help you today?
-      </p>
+    <div className="aui-thread-welcome-root mb-8 flex flex-col items-center justify-center px-4 text-center">
+      <h1 className="font-gemini-heading fade-in slide-in-from-bottom-2 animate-in text-[26px] leading-snug font-light tracking-normal text-[#F1F3F4] duration-300 sm:text-[32px] md:text-[35px]">
+        Hello! What can we solve today?
+      </h1>
     </div>
   );
 };
 
 const ThreadSuggestions: FC = () => {
+  const aui = useAui();
+
+  const handleSelect = (prompt: string) => {
+    try {
+      const composer = (aui as any)?.composer;
+      if (composer?.setText && composer?.send) {
+        composer.setText(prompt);
+        composer.send();
+      } else if (composer?.send) {
+        composer.send(prompt);
+      }
+    } catch (e) {
+      console.error("Suggestion error:", e);
+    }
+  };
+
   return (
-    <div className="aui-thread-welcome-suggestions flex w-full flex-col">
-      <ThreadPrimitive.Suggestions>
-        {() => <ThreadSuggestionItem />}
-      </ThreadPrimitive.Suggestions>
+    <div className="mt-5 flex w-full flex-col items-center">
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+        {F13_WELCOME_CHIPS.map((chip, idx) => {
+          const Icon = chip.icon;
+          return (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSelect(chip.prompt)}
+              className="group flex items-center gap-2 rounded-full border border-[#222222] bg-black px-3.5 py-2 text-xs font-medium text-[#F1F3F4] transition-all duration-200 hover:border-[#179A9D] hover:bg-[#111111] hover:text-[#5FB7BB] hover:shadow-[0_0_14px_rgba(23,154,157,0.22)] active:scale-95 sm:text-sm"
+            >
+              <Icon className="size-3.5 text-[#179A9D] transition-colors group-hover:text-[#5FB7BB]" />
+              <span>{chip.title}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
 
-const ThreadSuggestionItem: FC = () => {
-  return (
-    <div className="aui-thread-welcome-suggestion-display fade-in slide-in-from-bottom-2 animate-in fill-mode-both duration-200">
-      <SuggestionPrimitive.Trigger
-        send
-        render={
-          <button
-            type="button"
-            className="aui-thread-welcome-suggestion group hover:bg-foreground/[0.03] focus-visible:ring-ring/50 flex w-full items-baseline gap-2.5 rounded-md px-2 py-2 text-start text-sm transition-colors outline-none focus-visible:ring-1 motion-reduce:transition-none"
-          />
-        }
-      >
-        <span
-          aria-hidden
-          className="text-muted-foreground/60 group-hover:text-foreground font-mono text-xs transition-colors motion-reduce:transition-none"
-        >
-          {">"}
-        </span>
-        <span className="min-w-0 flex-1 truncate">
-          <SuggestionPrimitive.Title className="aui-thread-welcome-suggestion-text-1 text-foreground" />{" "}
-          <SuggestionPrimitive.Description className="aui-thread-welcome-suggestion-text-2 text-muted-foreground empty:hidden" />
-        </span>
-      </SuggestionPrimitive.Trigger>
-    </div>
-  );
-};
-
-const Composer: FC<{ autoFocus: boolean }> = ({ autoFocus }) => {
+const _Composer: FC<{ autoFocus: boolean }> = ({ autoFocus }) => {
   return (
     <ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col">
       <ComposerPrimitive.AttachmentDropzone
@@ -550,13 +586,13 @@ const Composer: FC<{ autoFocus: boolean }> = ({ autoFocus }) => {
           enterKeyHint="send"
           aria-label="Message input"
         />
-        <ComposerAction />
+        <_ComposerAction />
       </ComposerPrimitive.AttachmentDropzone>
     </ComposerPrimitive.Root>
   );
 };
 
-const ComposerAction: FC = () => {
+const _ComposerAction: FC = () => {
   const { ComposerExtra } = useContext(ThreadComponentsContext);
   // The stop control only cancels the send while no run it could stop is going.
   const isSending = useAuiState(
@@ -715,6 +751,43 @@ const MessageError: FC = () => {
   );
 };
 
+const F13FallbackRecommendation: FC = () => {
+  const content = useAuiState((s) => s.message.content);
+  const status = useAuiState((s) => s.message.status);
+  const threadMessages = useAuiState((s) => s.thread.messages);
+  const messageId = useAuiState((s) => s.message.id);
+
+  if (status?.type === "running") return null;
+
+  const fullText = (content || [])
+    .filter((p: any) => p.type === "text")
+    .map((p: any) => p.text)
+    .join("");
+
+  if (fullText.includes("f13-recommendation")) {
+    return null;
+  }
+
+  const currentIdx = threadMessages.findIndex((m) => m.id === messageId);
+  const precedingUserMsg = threadMessages
+    .slice(0, currentIdx >= 0 ? currentIdx : undefined)
+    .reverse()
+    .find((m) => m.role === "user");
+
+  const userQuery =
+    (precedingUserMsg?.content || [])
+      .filter((p: any) => p.type === "text")
+      .map((p: any) => p.text)
+      .join("") || "";
+
+  if (!userQuery) return null;
+
+  const fallbackData = synthesizeF13Recommendation(userQuery);
+  if (!fallbackData) return null;
+
+  return <F13RecommendationCard data={fallbackData} />;
+};
+
 const AssistantMessage: FC = () => {
   const {
     ToolFallback: ToolFallbackComponent = ToolFallback,
@@ -809,6 +882,7 @@ const AssistantMessage: FC = () => {
           }}
         </MessagePrimitive.GroupedParts>
         <MessageError />
+        <F13FallbackRecommendation />
       </div>
 
       <div
@@ -935,7 +1009,7 @@ const UserMessage: FC = () => {
       <UserMessageAttachments />
 
       <div className="aui-user-message-content-wrapper relative col-start-2 min-w-0">
-        <div className="aui-user-message-content peer bg-muted text-foreground rounded-(--composer-radius) px-4 py-2 wrap-break-word empty:hidden">
+        <div className="aui-user-message-content peer rounded-2xl border border-[#222222] bg-[#0f0f0f] px-4 py-2.5 wrap-break-word text-[#F1F3F4] shadow-xs empty:hidden">
           <MessagePrimitive.Parts
             components={{ File: UserFilePart, Image: UserImagePart }}
           />

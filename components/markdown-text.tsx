@@ -15,6 +15,14 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import { TooltipIconButton } from "@/components/tooltip-icon-button";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
+import { F13RecommendationCard } from "@/components/f13-recommendation";
+
+const f13RecommendationComponent = {
+  CodeHeader: () => null,
+  SyntaxHighlighter: ({ code }: { code: string }) => (
+    <F13RecommendationCard rawJson={code} />
+  ),
+};
 
 type MarkdownTextProps = Partial<TextMessagePartProps> & {
   components?: Parameters<typeof memoizeMarkdownComponents>[0];
@@ -47,6 +55,13 @@ const MarkdownTextImpl: FC<MarkdownTextProps> = ({
 }) => {
   const stableComponents = useShallowStable(components);
   const stableComponentsByLanguage = useShallowStable(componentsByLanguage);
+  const mergedComponentsByLanguage = useMemo(
+    () => ({
+      "f13-recommendation": f13RecommendationComponent,
+      ...stableComponentsByLanguage,
+    }),
+    [stableComponentsByLanguage],
+  );
   const markdownComponents = useMemo(() => {
     if (!stableComponents) return defaultComponents;
     return {
@@ -60,7 +75,7 @@ const MarkdownTextImpl: FC<MarkdownTextProps> = ({
       remarkPlugins={[remarkGfm]}
       className="aui-md"
       components={markdownComponents}
-      componentsByLanguage={stableComponentsByLanguage}
+      componentsByLanguage={mergedComponentsByLanguage}
       defer
     />
   );

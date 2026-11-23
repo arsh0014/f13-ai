@@ -67,8 +67,11 @@ export const ThreadListSearch = forwardRef<
         value={value}
         onChange={(event) => onValueChange(event.target.value)}
         aria-label="Search threads"
-        placeholder="Search threads"
-        className={cn("h-8 ps-8 text-sm", className)}
+        placeholder="Search conversations..."
+        className={cn(
+          "h-8.5 rounded-full border-[#222222] bg-black ps-8 text-xs text-[#F1F3F4] placeholder:text-[#A7ADB2] focus-visible:border-[#179A9D] focus-visible:ring-1 focus-visible:ring-[#179A9D]/30 sm:text-sm",
+          className,
+        )}
         {...props}
       />
     </div>
@@ -271,7 +274,7 @@ export const ThreadListNew = forwardRef<
           variant="ghost"
           data-slot="aui_thread-list-new"
           className={cn(
-            "hover:bg-muted data-active:bg-muted h-8 justify-start gap-2 rounded-md px-2.5 text-sm font-normal",
+            "group h-9.5 w-full justify-start gap-2.5 rounded-full border border-[#222222] bg-[#111111] px-3.5 text-sm font-medium text-[#F1F3F4] shadow-xs transition-all duration-200 hover:border-[#179A9D] hover:bg-[#179A9D]/15 hover:text-[#5FB7BB]",
             className,
           )}
           {...props}
@@ -282,13 +285,13 @@ export const ThreadListNew = forwardRef<
         <>
           <PlusIcon
             data-slot="aui_thread-list-new-icon"
-            className="size-4 shrink-0"
+            className="size-4 shrink-0 text-[#179A9D] transition-colors group-hover:text-[#5FB7BB]"
           />
           <span
             data-slot="aui_thread-list-new-label"
-            className={cn("whitespace-nowrap", labelClassName)}
+            className={cn("font-medium whitespace-nowrap", labelClassName)}
           >
-            New Thread
+            New Chat
           </span>
         </>
       )}
@@ -337,7 +340,7 @@ export const ThreadListItem: FC = () => {
   return (
     <ThreadListItemPrimitive.Root
       data-slot="aui_thread-list-item"
-      className="group hover:bg-muted focus-visible:bg-muted data-active:bg-muted has-focus-visible:bg-muted has-data-[state=open]:bg-muted relative flex h-8 items-center rounded-md transition-colors focus-visible:outline-none"
+      className="group relative flex h-8.5 items-center rounded-lg px-1 transition-all duration-150 hover:bg-[#111111] hover:text-[#5FB7BB] focus-visible:bg-[#111111] focus-visible:outline-none has-focus-visible:bg-[#111111] has-data-[state=open]:bg-[#111111] data-active:border-l-2 data-active:border-[#179A9D] data-active:bg-[#111111] data-active:text-[#5FB7BB]"
     >
       {isRenaming ? (
         <ThreadListItemRename
@@ -350,13 +353,13 @@ export const ThreadListItem: FC = () => {
         <ThreadListItemPrimitive.Trigger
           ref={triggerRef}
           data-slot="aui_thread-list-item-trigger"
-          className="focus-visible:ring-ring/50 flex h-full min-w-0 flex-1 items-center rounded-md px-2.5 text-start text-sm outline-none group-hover:pe-9 group-has-focus-visible:pe-9 group-has-data-[state=open]:pe-9 group-data-active:pe-9 focus-visible:ring-1"
+          className="flex h-full min-w-0 flex-1 items-center rounded-md px-2.5 text-start text-xs text-[#F1F3F4] outline-none group-hover:pe-9 group-hover:text-[#5FB7BB] group-has-focus-visible:pe-9 group-has-data-[state=open]:pe-9 group-data-active:pe-9 focus-visible:ring-1 focus-visible:ring-[#179A9D]/50 sm:text-sm"
         >
           {isRunning && (
             <Loader2Icon
               aria-hidden
               data-slot="aui_thread-list-item-running"
-              className="text-muted-foreground me-1.5 size-3.5 shrink-0 animate-spin"
+              className="me-1.5 size-3.5 shrink-0 animate-spin text-[#179A9D]"
             />
           )}
           <span

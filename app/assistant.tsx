@@ -30,20 +30,25 @@ export const Assistant = () => {
     <AssistantRuntimeProvider runtime={runtime}>
       <SidebarProvider>
         <div className="flex h-dvh w-full pr-0.5">
-          <ThreadListSidebar />
+          <ThreadListSidebar collapsible="icon" />
           <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="text-base font-semibold">
-                      F13 Technology-ai
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+            <header className="flex h-14 shrink-0 items-center justify-between bg-black px-4">
+              <div className="flex items-center gap-2.5">
+                <SidebarTrigger className="text-[#A7ADB2] transition-colors hover:bg-neutral-900 hover:text-[#5FB7BB]" />
+                <Separator
+                  orientation="vertical"
+                  className="mr-2 h-4 bg-[#222222]"
+                />
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbPage className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[#F1F3F4]">
+                        <span>F13 Technology-AI</span>
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
             </header>
             <div className="flex-1 overflow-hidden">
               <Thread />
